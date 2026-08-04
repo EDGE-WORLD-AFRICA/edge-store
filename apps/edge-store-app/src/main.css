@@ -1,3 +1,121 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+
+    --edge-background: 180 33% 99%;
+    --edge-foreground: 200 28% 12%;
+
+    --edge-card: 0 0% 100%;
+    --edge-card-foreground: 200 25% 18%;
+
+    --edge-surface: 180 25% 97%;
+    --edge-surface-foreground: 200 25% 18%;
+
+    --edge-muted: 180 20% 95%;
+    --edge-muted-foreground: 200 12% 42%;
+
+    --edge-border: 180 20% 95%;
+    --edge-input: 180 16% 84%;
+    --edge-ring: 172 70% 36%;
+    --edge-radius: 0.75rem;
+
+    --edge-primary: 172 72% 30%;
+    --edge-primary-foreground: 0 0% 100%;
+    --edge-primary-soft: 170 65% 93%;
+    --edge-primary-strong: 173 75% 24%;
+
+    --edge-secondary: 24 95% 50%;
+    --edge-secondary-foreground: 0 0% 100%;
+    --edge-secondary-soft: 27 100% 94%;
+    --edge-secondary-strong: 22 92% 44%;
+
+    --edge-danger: 0 72% 51%;
+    --edge-danger-foreground: 0 0% 100%;
+
+    --edge-warning: 38 92% 50%;
+    --edge-warning-foreground: 26 83% 14%;
+
+    --edge-success: 160 84% 30%;
+    --edge-success-foreground: 0 0% 100%;
+
+    --edge-default: 210 18% 92%;
+    --edge-default-foreground: 215 16% 25%;
+    --edge-default-soft: 210 20% 96%;
+    --edge-default-strong: 215 16% 80%;
+
+    --edge-info: 203 80% 90%;
+    --edge-info-foreground: 204 70% 30%;
+    --edge-info-soft: 203 85% 95%;
+    --edge-info-strong: 203 75% 45%;
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    --edge-background: 204 25% 7%;
+    --edge-foreground: 180 20% 96%;
+
+    --edge-card: 204 22% 10%;
+    --edge-card-foreground: 180 20% 96%;
+
+    --edge-surface: 202 22% 12%;
+    --edge-surface-foreground: 180 18% 88%;
+
+    --edge-muted: 202 18% 15%;
+    --edge-muted-foreground: 190 10% 62%;
+
+    --edge-border: 202 18% 18%;
+    --edge-input: 202 18% 22%;
+    --edge-ring: 170 70% 45%;
+
+    --edge-primary: 170 70% 42%;
+    --edge-primary-foreground: 204 25% 7%;
+    --edge-primary-soft: 172 45% 16%;
+    --edge-primary-strong: 170 72% 55%;
+
+    --edge-secondary: 25 95% 56%;
+    --edge-secondary-foreground: 204 25% 7%;
+    --edge-secondary-soft: 25 45% 16%;
+    --edge-secondary-strong: 27 95% 65%;
+
+    --edge-accent: 170 35% 16%;
+    --edge-accent-foreground: 170 65% 82%;
+
+    --edge-danger: 0 70% 55%;
+    --edge-danger-foreground: 204 25% 7%;
+
+    --edge-warning: 40 92% 55%;
+    --edge-warning-foreground: 26 83% 12%;
+
+    --edge-success: 160 70% 42%;
+    --edge-success-foreground: 204 25% 7%;
+    
+    --edge-default: 215 15% 20%;
+    --edge-default-foreground: 210 15% 85%;
+    --edge-default-soft: 215 15% 16%;
+    --edge-default-strong: 215 15% 30%;
+
+    --edge-info: 204 60% 18%;
+    --edge-info-foreground: 203 80% 80%;
+    --edge-info-soft: 204 55% 14%;
+    --edge-info-strong: 203 70% 55%;
+  }
+
+  * { 
+    @apply border-border 
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
