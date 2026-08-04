@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@edge-store/shared": "workspace:*"
+  }
+}
