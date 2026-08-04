@@ -8,6 +8,19 @@ export const EDGE_CACHE_VERSION = "1.0.0";
 
 export type IServerProtocol = "http" | "https";
 
+export type IThemeMode = "light" | "dark" | "system";
+
+export type IResolvedTheme = "light" | "dark";
+
+export interface IThemeState {
+  mode: IThemeMode; 
+  resolved: IResolvedTheme;
+}
+
+export interface IUiState {
+  theme: IThemeState;
+}
+
 export interface IServerConfigCache {
   protocol: IServerProtocol;
   host: string;
@@ -141,6 +154,7 @@ export interface IEdgeStoreCache {
   permissions: IPermissionCache | null;
   metadataSync: IMetadataSyncCache;
   connectivity: IConnectivityCache;
+  ui: IUiState;
 }
 
 /**
@@ -167,7 +181,13 @@ export function createDefaultCache(): IEdgeStoreCache {
     metadataSync: {
       status: "idle"
     },
-    connectivity: {}
+    connectivity: {},
+    ui: {
+      theme: {
+        mode: "system",
+        resolved: "light"
+      }
+    }
   };
 }
 
