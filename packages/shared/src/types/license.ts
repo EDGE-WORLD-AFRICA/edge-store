@@ -2,7 +2,7 @@ export type ILicenseDurationType = "trial" | "finite" | "infinite";
 
 export type ILicenseAccessMode = "production" | "demo" | "development";
 
-export type ILIcenseStatus = | "missing" | "active" | "expired" | "invalid" | "machine_mismatch" | "suspended" | " grace_period";
+export type ILicenseStatus = | "missing" | "active" | "expired" | "invalid" | "machine_mismatch" | "suspended" | "grace_period";
 
 export interface ILicenseLimits {
   maxDevices?: number;
@@ -44,8 +44,8 @@ export interface ISignedLicenseToken {
   signature: string;
 }
 
-export interface ILicenseState {
-  status: ILIcenseStatus;
+export interface ILicenseCache {
+  status: ILicenseStatus;
   machineCode: string;
   activationCode?: string;
   token?: ISignedLicenseToken;

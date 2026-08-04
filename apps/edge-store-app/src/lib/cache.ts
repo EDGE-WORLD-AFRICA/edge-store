@@ -2,160 +2,32 @@
  * Edge Store Central cache
  */
 import { dateToIsoString } from "./datetimes";
+import type { 
+  IEdgeStoreCache, 
+  IServerConfigCache,
+  IThemeMode,
+  IThemeState,
+  IUiState,
+  IResolvedTheme,
+  IServerProtocol,
+  ILicenseDurationType,
+  ILicenseLimits,
+  ILicenseClaims,
+  ILicenseStatus,
+  ISignedLicenseToken,
+  ILicenseCache,
+  ISetupCache,
+  IAuthSessionCache,
+  IOfflineAuthCache,
+  IPermissionCache,
+  IMetadataSyncCache,
+  IServerConnectivityState,
+  IMetaCache
+} from "@edge-store/shared";
+
 
 export const EDGE_CACHE_KEY = "EDGE_STORE_CACHE";
 export const EDGE_CACHE_VERSION = "1.0.0";
-
-export type IServerProtocol = "http" | "https";
-
-export type IThemeMode = "light" | "dark" | "system";
-
-export type IResolvedTheme = "light" | "dark";
-
-export interface IThemeState {
-  mode: IThemeMode; 
-  resolved: IResolvedTheme;
-}
-
-export interface IUiState {
-  theme: IThemeState;
-}
-
-export interface IServerConfigCache {
-  protocol: IServerProtocol;
-  host: string;
-  port?: string;
-  basePath?: string;
-  licenseUrl?: string; 
-  savedAt: string;
-}
-
-export type ILicenseDurationType = "trial" | "finite" | "infinite";
-
-export interface ILicenseLimits {
-  maxDevices?: number; 
-  maxBranches?: number; 
-  maxUsers?: number;
-}
-
-export interface ILicenseClaims{
-  licenseId: string;
-  activationCode?: string;
-  companyId?: string | number;
-  companyName?: string;
-  product: string;
-  edition?: string;
-  machineCode: string;
-  deviceId?: string;
-  deviceName?: string;
-  issuedAt: string; /** Unix seconds */
-  expiresAt: number | null; /** Unix seconds - null == infinite/perpetual license */
-  notificationAt: number | null; /** Date Notification should begin */
-  durationType: ILicenseDurationType;
-  features: string[];
-  limits: ILicenseLimits;
-}
-
-export interface ISignedLicenseToken {
-  alg: "Ed25519";
-  payload: string;
-  signature: string;
-}
-
-export type ILicenseStatus = "missing" | "active" | "expired" | "invalid" | "machine_mismatch" | "suspended" | "grace_period";
-
-export interface ILicenseCache {
-  status: ILicenseStatus;
-  activationCode?: string;
-  machineCode: string;
-  token?: ISignedLicenseToken;
-  claims?: ILicenseClaims;
-  lastCheckedAt?: string;
-  lastError?: string;
-}
-
-export interface ISetupStateCache{
-  companyDetected: boolean;
-  companyName?: string;
-  superAdminExists: boolean;
-  lastBootstrapAt?: string;
-}
-
-export interface IAuthSessionCache{
-  userId: string | number;
-  name: string; 
-  email: string;
-  companyId?: string | number;
-  branchId?: string | number;
-  mode: "online" | "offline";
-  accessToken?: string;
-  refreshToken?: string;
-  loggedInAt: string;
-  expiresAt: string;
-  roles: any[];
-  privileges: any[];
-}
-
-export interface IOfflineAuthCache{
-  userId: string | number;
-  name: string;
-  email: string;
-  companyId?: string | number;
-  branchIds?: (string | number)[];
-  permissions: any[];
-  passwordVerifier: string;
-  cachedAt: string;
-  expiresAt: string;
-  version: string | number;
-  signature?: string;
-}
-
-export interface IPermissionCache{
-  userId: string | number;
-  branchId?: string | number;
-  permissions: any[];
-  cachedAt: string;
-  expiresAt?: string;
-  signature?: string;
-}
-
-export interface IMetadataSyncCache{
-  lastCursor?: string; 
-  lastSyncedAt?: string;
-  status: "idle" | "syncing" | "error" | "success";
-  errorMessage?: string;
-}
-
-export interface IConnectivityCache{
-  browserOnline?: boolean; 
-  backendReachable?: boolean;
-  licenseServerReachable?: boolean;
-  lastCheckedAt?: string;
-}
-
-export interface ICacheMeta{
-  version: string | number; 
-  createdAt: string;
-  updatedAt: string;
-  deviceId?: string;
-  machineCode?: string;
-}
-
-/**                                                            
- * ******************* MAIN UMBRELLA OBJECT *******************
- */
-export interface IEdgeStoreCache {
-  meta: ICacheMeta;
-  server: IServerConfigCache | null;
-  license: ILicenseCache | null;
-  setup: ISetupStateCache;
-  auth: IAuthSessionCache | null;
-  offlineAuth: IOfflineAuthCache[];
-  permissions: IPermissionCache | null;
-  metadataSync: IMetadataSyncCache;
-  connectivity: IConnectivityCache;
-  ui: IUiState;
-}
 
 /**
  * FUNCTIONS
@@ -181,7 +53,9 @@ export function createDefaultCache(): IEdgeStoreCache {
     metadataSync: {
       status: "idle"
     },
-    connectivity: {},
+    connectivity: {
+      status: "unknown"
+    },
     ui: {
       theme: {
         mode: "system",

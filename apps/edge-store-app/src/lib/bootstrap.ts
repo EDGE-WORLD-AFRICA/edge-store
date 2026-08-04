@@ -1,5 +1,5 @@
-import { IEdgeStoreCache, loadCache } from "./cache";
-import { IBootstrapStage } from '../../../../packages/shared/src/types/bootstrap';
+import { loadCache } from "./cache";
+import type { IEdgeStoreCache, IBootstrapStage } from '@edge-store/shared';
 
 export const isLicenseActive = (cache: IEdgeStoreCache): boolean => {
   if(!cache.license) return false;

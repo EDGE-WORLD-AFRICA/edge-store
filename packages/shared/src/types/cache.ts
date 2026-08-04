@@ -1,16 +1,16 @@
 import { IThemeState } from "./theme";
-import { IServerConfig, IServerConnectivityState } from "./server";
-import { ILicenseState } from "./license";
+import { IServerConfigCache, IServerConnectivityState } from "./server";
+import { ILicenseCache } from "./license";
 
-export interface ICacheMeta {
-  version: number;
+export interface IMetaCache {
+  version: string | number;
   createdAt: string; 
   updatedAt: string;
   deviceId?: string;
   machineCode?: string;
 }
 
-export interface ISetupState {
+export interface ISetupCache {
   companyDetected: boolean;
   companyName?: string;
   superAdminExists: boolean;
@@ -19,7 +19,7 @@ export interface ISetupState {
 
 export type IAuthMode = "online" | "offline";
 
-export interface IAuthSession {
+export interface IAuthSessionCache {
   userId: string | number; 
   name: string; 
   email: string; 
@@ -32,7 +32,7 @@ export interface IAuthSession {
   expiresAt?: string;
 }
 
-export interface IOfflineAuthCredential {
+export interface IOfflineAuthCache {
   userId: string | number;
   name: string;
   email: string;
@@ -57,7 +57,7 @@ export interface IPermissionCache {
 
 export type IMetadataSyncStatus = "idle" | "syncing" | "success" | "error";
 
-export interface IMetadataSyncState {
+export interface IMetadataSyncCache {
   lastCursor?: string;
   lastSyncedAt?: string;
   status: IMetadataSyncStatus;
@@ -69,14 +69,14 @@ export interface IUiState {
 }
 
 export interface IEdgeStoreCache {
-  meta: ICacheMeta;
-  server: IServerConfig | null;
-  license: ILicenseState | null;
-  setup: ISetupState;
-  auth: IAuthSession | null;
-  offlineAuth: IOfflineAuthCredential[];
+  meta: IMetaCache;
+  server: IServerConfigCache | null;
+  license: ILicenseCache | null;
+  setup: ISetupCache;
+  auth: IAuthSessionCache | null;
+  offlineAuth: IOfflineAuthCache[];
   permissions: IPermissionCache | null;
-  metadataSync: IMetadataSyncState;
+  metadataSync: IMetadataSyncCache;
   connectivity: IServerConnectivityState;
   ui: IUiState;
 }

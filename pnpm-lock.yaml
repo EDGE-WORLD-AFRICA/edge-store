@@ -225,6 +225,9 @@ importers:
 
   apps/edge-store-app:
     dependencies:
+      '@edge-store/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@tauri-apps/api':
         specifier: ^2
         version: 2.11.1
@@ -265,6 +268,12 @@ importers:
       vite:
         specifier: ^7.0.4
         version: 7.3.6(@types/node@26.1.2)(jiti@1.21.7)(tsx@4.23.5)(yaml@2.9.0)
+
+  packages/shared:
+    devDependencies:
+      typescript:
+        specifier: ^5.5.4
+        version: 5.8.3
 
 packages:
 

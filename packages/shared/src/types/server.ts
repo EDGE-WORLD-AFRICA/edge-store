@@ -1,9 +1,9 @@
 export type IServerProtocol = "http" | "https";
 
-export interface IServerConfig {
+export interface IServerConfigCache {
   protocol: IServerProtocol;
   host: string; 
-  port?: string | number;
+  port?: string;
   basePath?: string;
   licenseUrl?: string;
   savedAt: string;
@@ -17,7 +17,7 @@ export interface IServerConfigInput {
   licenseUrl?: string;
 }
 
-export type IServerConnectionStatus = | "unknown" | "checking" | "connected" | "error";
+export type IServerConnectionStatus =  "unknown" | "checking" | "connected" | "error";
 
 export interface IServerConnectivityState {
   status: IServerConnectionStatus;
