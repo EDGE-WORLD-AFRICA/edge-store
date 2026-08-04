@@ -1,6 +1,5 @@
 import { IEdgeStoreCache, loadCache } from "./cache";
-
-export type IBootstrapStage = "SERVER_CONFIG" | "LICENSE" | "COMPANY_SETUP" | "SUPER_ADMIN_SETUP" | "LOGIN" | "APP";
+import { IBootstrapStage } from '../../../../packages/shared/src/types/bootstrap';
 
 export const isLicenseActive = (cache: IEdgeStoreCache): boolean => {
   if(!cache.license) return false;
