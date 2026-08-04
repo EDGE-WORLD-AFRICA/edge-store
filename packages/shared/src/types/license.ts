@@ -1,5 +1,7 @@
 export type ILicenseDurationType = "trial" | "finite" | "infinite";
 
+export type ILicenseAccessMode = "production" | "demo" | "development";
+
 export type ILIcenseStatus = | "missing" | "active" | "expired" | "invalid" | "machine_mismatch" | "suspended" | " grace_period";
 
 export interface ILicenseLimits {
@@ -29,6 +31,9 @@ export interface ILicenseClaims {
   expiresAt: number | null;
   notificationAt: number | null; 
   durationType: ILicenseDurationType;
+  accessMode?: ILicenseAccessMode;
+  demo?: boolean;
+  demoExpiresAt?: number | null;
   features: string[];
   limits: ILicenseLimits;
 }
@@ -59,4 +64,10 @@ export interface ILicenseActivationResponse {
   status: "activated" | "invalid" | "expired" | "suspended" | "device_limit_exceeded";
   license?: ISignedLicenseToken;
   message?: string;
+}
+
+export interface IDemoLicenseRequest {
+  machineCode: string;
+  demoCode?: string;
+  durationHours?: number;
 }
