@@ -2,6 +2,7 @@ import {  useState } from "react";
 import type { IServerConfigCache, IServerProtocol } from "@edge-store/shared";
 import { setCacheSection } from "../../lib/cache";
 import { dateToIsoString } from "../../lib/datetimes";
+import { Loader2 } from "lucide-react";
 
 interface IServerConfigStepProps {
   onComplete: () => void;
@@ -20,7 +21,7 @@ export const ServerConfigStep = ({ onComplete }: IServerConfigStepProps) => {
     setIsTesting(true);
 
     //mock connction but will ping /health
-    await new Promise((resolve) => setTimeout(resolve, 2500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     
     if(!host.trim()) {
       setError("Host is required.");
@@ -43,9 +44,12 @@ export const ServerConfigStep = ({ onComplete }: IServerConfigStepProps) => {
 
   return(
     <>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Server Configuration</h2>
+          <h2 className="flex items-center gap-2 text-2xl font-bold text-foreground">
+            Server Configuration 
+            {isTesting && <Loader2 size={22} className="mr-2 animate-spin" />}
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Connect Edge Store to your backend API server.
           </p>
@@ -110,9 +114,10 @@ export const ServerConfigStep = ({ onComplete }: IServerConfigStepProps) => {
           <button
             onClick={handleTestAndSave}
             disabled={isTesting}
-            className="rounded-md bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-strong disabled:opacity-50"
+            className="flex items-center gap-2 rounded-md bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-strong disabled:opacity-50"
           >
             {isTesting ? "Testing Connection..." : "Test & Continue"}
+            {isTesting && <Loader2 size={16} className="mr-2 animate-spin" />}
           </button>
         </div>
       </div>
