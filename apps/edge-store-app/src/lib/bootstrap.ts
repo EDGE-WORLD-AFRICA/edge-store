@@ -8,7 +8,7 @@ export const isLicenseActive = (cache: IEdgeStoreCache): boolean => {
 }
 
 
-export function resolveBootstrapStage(cache: IEdgeStoreCache = loadCache()): IBootstrapStage {
+export const resolveBootstrapStage = (cache: IEdgeStoreCache = loadCache()): IBootstrapStage => {
   if(!cache.server) return "SERVER_CONFIG";
 
   if(!isLicenseActive(cache)) return "LICENSE";
