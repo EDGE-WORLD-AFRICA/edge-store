@@ -27,7 +27,7 @@ export interface ILicenseClaims {
   machineCode: string;
   deviceId?: string;
   deviceName?: string;
-  issuedAt: number;
+  issuedAt: string | number;
   expiresAt: number | null;
   notificationAt: number | null; 
   durationType: ILicenseDurationType;
