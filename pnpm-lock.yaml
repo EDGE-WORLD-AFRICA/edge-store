@@ -223,6 +223,12 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2
 
+  apps/edge-store-api:
+    dependencies:
+      '@edge-store/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+
   apps/edge-store-app:
     dependencies:
       '@edge-store/shared':
