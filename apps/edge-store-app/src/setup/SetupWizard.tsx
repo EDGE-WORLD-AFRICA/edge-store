@@ -11,6 +11,7 @@ import { CompanySetupStep } from "./steps/CompanySetupStep";
 import { SuperAdminSetupStep } from "./steps/SuperAdminSetupStep";
 import { DeviceSetupStep } from "./steps/DeviceSetupStep";
 import { SummaryStep } from "./steps/SummaryStep";
+import { LoginScreen } from "../auth/LoginScreen";
 
 
 export const SetupWizard = () => {
@@ -49,6 +50,10 @@ export const SetupWizard = () => {
     );
   }
 
+  if (["APP", "LOGIN"].includes(currentStage)) {
+    return <LoginScreen />;
+  }
+
   const renderStep = () => {
     switch(currentStage) {
       case "SERVER_CONFIG":
@@ -63,15 +68,6 @@ export const SetupWizard = () => {
         return <DeviceSetupStep onComplete={goToNextStage} />;
       case "SUMMARY":
         return <SummaryStep onComplete={goToNextStage} />;
-      case "APP": 
-        return(
-          <>
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-primary">Setup Complete</h1>
-              <p className="mt-2 text-muted-foreground">Provisioning finished. Loading Application shell...</p>
-            </div>
-          </>
-        );
       default:
         return null;
     }

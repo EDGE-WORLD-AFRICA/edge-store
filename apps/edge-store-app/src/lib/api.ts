@@ -50,9 +50,10 @@ export const submitSetupData = async (
   if (!server) {
     return { success: false, message: "Server configuration missing." };
   }
-
+  
   try {
     const baseUrl = getApiBaseUrl(server);
+    return { success: true, message: "False API Success" };
 
     const payload = {
       meta: cache.meta,

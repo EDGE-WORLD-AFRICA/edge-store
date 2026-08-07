@@ -70,6 +70,7 @@ export interface IMetadataSyncCache {
 export interface IAdminSetupCache {
   name: string;
   email: string;
+  username?: string;
   password?: string;
 }
 

@@ -12,6 +12,7 @@ export const SuperAdminSetupStep = ({ onComplete }: ISuperAdminSetupStepProps) =
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +56,11 @@ export const SuperAdminSetupStep = ({ onComplete }: ISuperAdminSetupStepProps) =
       return;
     }
 
+    if(!username.trim()){
+      setError("Admin username is required.");
+      return;
+    }
+
     if(!/^\S+@\S+\.\S+$/.test(email.trim())){
       setError("Enter a valid email address.");
       return;
@@ -77,6 +83,7 @@ export const SuperAdminSetupStep = ({ onComplete }: ISuperAdminSetupStepProps) =
     setCacheSection("admin", {
       name: name.trim(),
       email: email.trim(),
+      username: username.trim(),
       password: password
     });
 
@@ -131,6 +138,19 @@ export const SuperAdminSetupStep = ({ onComplete }: ISuperAdminSetupStepProps) =
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@edgestore.mw"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">
+              Username
+            </label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="e.g. johndoe"
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
