@@ -112,7 +112,7 @@ export const ConnectivityIndicator = ({
       action: "start",
       apiUrl,
       internetUrl,
-      intervalMs: 30000,
+      intervalMs: 1500,
     });
 
     return () => {
