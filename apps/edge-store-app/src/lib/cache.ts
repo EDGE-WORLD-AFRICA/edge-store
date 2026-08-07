@@ -4,25 +4,7 @@
 import { dateToIsoString } from "./datetimes";
 import type { 
   IEdgeStoreCache, 
-  IServerConfigCache,
-  IThemeMode,
-  IThemeState,
-  IUiState,
-  IResolvedTheme,
-  IServerProtocol,
-  ILicenseDurationType,
-  ILicenseLimits,
-  ILicenseClaims,
-  ILicenseStatus,
-  ISignedLicenseToken,
-  ILicenseCache,
-  ISetupCache,
-  IAuthSessionCache,
-  IOfflineAuthCache,
-  IPermissionCache,
-  IMetadataSyncCache,
-  IServerConnectivityState,
-  IMetaCache
+  IServerConfigCache
 } from "@edge-store/shared";
 
 
@@ -43,9 +25,13 @@ export function createDefaultCache(): IEdgeStoreCache {
     },
     server: null,
     license: null,
+    company: null,
+    device: null,
+    admin: null,
     setup: {
       companyDetected: false,
-      superAdminExists: false
+      superAdminExists: false,
+      setupCompleted: false
     },
     auth: null,
     offlineAuth: [],
@@ -126,6 +112,10 @@ export function loadCache(): IEdgeStoreCache {
       connectivity: {
         ...createDefaultCache().connectivity,
         ...parsed.connectivity,
+      },
+      ui: {
+        ...createDefaultCache().ui,
+        ...parsed.ui
       }
     };
 

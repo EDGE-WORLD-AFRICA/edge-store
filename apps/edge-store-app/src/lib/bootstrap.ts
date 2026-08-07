@@ -13,9 +13,13 @@ export const resolveBootstrapStage = (cache: IEdgeStoreCache = loadCache()): IBo
 
   if(!isLicenseActive(cache)) return "LICENSE";
 
-  if(!cache.setup.companyDetected) return "COMPANY_SETUP";
+  if(!cache.company || !cache.setup.companyDetected) return "COMPANY_SETUP";
 
   if(!cache.setup.superAdminExists) return "SUPER_ADMIN_SETUP";
+
+  if(!cache.device) return "DEVICE_SETUP";
+
+  if(!cache.setup.setupCompleted) return "SUMMARY";
 
   return "APP";
 }

@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import type { IBootstrapStage } from "@edge-store/shared";
 import { useTheme } from "../../theme/ThemeProvider";
 import { Sun, Moon, X, Copy, Check, Menu } from 'lucide-react';
+import { ConnectivityIndicator } from '../../components/ui/ConnectivityIndicator';
 
 interface ISetupLayoutProps {
   currentStage: IBootstrapStage;
@@ -14,7 +15,9 @@ const steps: { id: IBootstrapStage; label: string }[] = [
   { id: "SERVER_CONFIG", label: "Server Configuration" },
   { id: "LICENSE", label: "License Activation" },
   { id: "COMPANY_SETUP", label: "Company Details" },
-  { id: "SUPER_ADMIN_SETUP",  label: "Super Admin" }
+  { id: "SUPER_ADMIN_SETUP",  label: "Super Admin" },
+  { id: "DEVICE_SETUP",  label: "Device Setup" },
+  { id: "SUMMARY",  label: "Review and Finish" }
 ];
 
 
@@ -148,6 +151,10 @@ export const SetupLayout = ({ currentStage, machineCode, children }: ISetupLayou
 
           <div className="flex flex-1 items-center justify-center overflow-y-auto p-4 lg:p-6">
             <div className="w-full max-w-2xl">{children}</div>
+          </div>
+
+           <div className="rounded-md bg-muted/30 p-2 border border-border">
+            <ConnectivityIndicator />
           </div>
         </main>
       </div>

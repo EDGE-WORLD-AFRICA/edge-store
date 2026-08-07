@@ -7,6 +7,10 @@ export interface IThemeState {
   resolved: IResolvedTheme;
 }
 
+export interface IUiState {
+  theme: IThemeState;
+}
+
 export interface IThemeColorScale{
   50: string;
   100: string;

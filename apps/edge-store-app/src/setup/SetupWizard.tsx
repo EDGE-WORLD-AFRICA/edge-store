@@ -7,6 +7,10 @@ import { SetupLayout } from "./components/SetupLayout";
 
 import { ServerConfigStep } from "./steps/ServerConfigStep";
 import { LicenseStep } from "./steps/LicenseStep";
+import { CompanySetupStep } from "./steps/CompanySetupStep";
+import { SuperAdminSetupStep } from "./steps/SuperAdminSetupStep";
+import { DeviceSetupStep } from "./steps/DeviceSetupStep";
+import { SummaryStep } from "./steps/SummaryStep";
 
 
 export const SetupWizard = () => {
@@ -52,9 +56,13 @@ export const SetupWizard = () => {
       case "LICENSE":
         return <LicenseStep onComplete={goToNextStage} machineCode={machineCode} />;
       case "COMPANY_SETUP":
-        return <div className="text-foreground">Company Details Step (Coming Next)</div>;
+        return <CompanySetupStep onComplete={goToNextStage} />;
       case "SUPER_ADMIN_SETUP":  
-        return <div className="text-foreground">Admin Details Step (Coming Next)</div>;
+        return <SuperAdminSetupStep onComplete={goToNextStage} />;
+      case "DEVICE_SETUP":
+        return <DeviceSetupStep onComplete={goToNextStage} />;
+      case "SUMMARY":
+        return <SummaryStep onComplete={goToNextStage} />;
       case "APP": 
         return(
           <>

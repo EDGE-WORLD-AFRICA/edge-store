@@ -1,6 +1,7 @@
-import { IThemeState } from "./theme";
+import { IUiState } from "./theme";
 import { IServerConfigCache, IServerConnectivityState } from "./server";
 import { ILicenseCache } from "./license";
+import { ICompanySetupCache, IDeviceProfileCache } from "./company";
 
 export interface IMetaCache {
   version: string | number;
@@ -15,6 +16,8 @@ export interface ISetupCache {
   companyName?: string;
   superAdminExists: boolean;
   lastBootstrapAt?: string;
+  deviceConfigured?: string;
+  setupCompleted?: boolean;
 }
 
 export type IAuthMode = "online" | "offline";
@@ -64,14 +67,19 @@ export interface IMetadataSyncCache {
   errorMessage?: string;
 }
 
-export interface IUiState {
-  theme: IThemeState;
+export interface IAdminSetupCache {
+  name: string;
+  email: string;
+  password?: string;
 }
 
 export interface IEdgeStoreCache {
   meta: IMetaCache;
   server: IServerConfigCache | null;
   license: ILicenseCache | null;
+  company: ICompanySetupCache | null;
+  device: IDeviceProfileCache | null;
+  admin: IAdminSetupCache | null;
   setup: ISetupCache;
   auth: IAuthSessionCache | null;
   offlineAuth: IOfflineAuthCache[];
