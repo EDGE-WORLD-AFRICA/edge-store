@@ -138,3 +138,80 @@
     animation: fade-in-up 0.5s ease-out forwards;
   }
 }
+
+/*TOAST + MODAL ANIMATION*/
+  @keyframes toast-slide-in {
+    from {
+      transform: translateY(16px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes toast-slide-out {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(16px);
+      opacity: 0;
+    }
+  }
+
+  .animate-toast-in {
+    animation: toast-slide-in 0.3s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+  }
+
+  .animate-toast-out {
+    animation: toast-slide-out 0.25s cubic-bezier(0.06, 0.71, 0.55, 1) forwards;
+  }
+
+  @keyframes modal-overlay-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes modal-content-in {
+    from {
+      transform: scale(0.95) translateY(8px);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-modal-overlay-in {
+    animation: modal-overlay-in 0.2s ease-out forwards;
+  }
+
+  .animate-modal-content-in {
+    animation: modal-content-in 0.25s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+  }
+
+  @keyframes toast-slide-in {
+    from {
+      transform: translateY(-16px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes toast-slide-out {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(-16px);
+      opacity: 0;
+    }
+  }

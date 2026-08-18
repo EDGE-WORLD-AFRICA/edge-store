@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import type { IBootstrapStage } from "@edge-store/shared";
 import { useTheme } from "../../theme/ThemeProvider";
 import { Sun, Moon, X, Copy, Check, Menu } from 'lucide-react';
-import { ConnectivityIndicator } from '../../components/ui/ConnectivityIndicator';
+import { ConnectivityIndicator } from '../../components/elements/ConnectivityIndicator';
 
 interface ISetupLayoutProps {
   currentStage: IBootstrapStage;

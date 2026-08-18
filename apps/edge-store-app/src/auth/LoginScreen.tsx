@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { loadCache, getCacheSection, getApiBaseUrl } from "../lib/cache";
 import { useTheme } from "../theme/ThemeProvider";
-import { ConnectivityIndicator } from "../components/ui/ConnectivityIndicator";
+import { ConnectivityIndicator } from "../components/elements/ConnectivityIndicator";
 
 export const LoginScreen = () => {
   const cache = loadCache();
@@ -173,7 +173,7 @@ export const LoginScreen = () => {
 
         {/* Connectivity Indicator */}
         <div className="mt-6 flex justify-center">
-          <ConnectivityIndicator showNetworkSpeed={false} showApiLatency={false} />
+          <ConnectivityIndicator showNetworkSpeed={false} showApiLatency={false} isApiClickable={true} />
         </div>
       </div>
     </div>

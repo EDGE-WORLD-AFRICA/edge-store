@@ -1,11 +1,14 @@
 import { ThemeProvider } from "./theme/ThemeProvider";
+import { ToastProvider } from "./components/ui/ToastProvider";
 import { SetupWizard } from "./setup/SetupWizard";
 import "./main.css";
 
 const App = () => {
   return(
     <ThemeProvider>
-      <SetupWizard />
+      <ToastProvider>
+        <SetupWizard />
+      </ToastProvider>
     </ThemeProvider>
   );
 };

@@ -1,5 +1,6 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use sha2::{Digest, Sha256};
+mod network;
 
 #[tauri::command]
 fn get_machine_fingerprint() -> Result<String, String> {
@@ -25,7 +26,8 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
-            get_machine_fingerprint
+            get_machine_fingerprint,
+            network::get_network_type
         ]).run(tauri::generate_context!())
         .expect("error while running [tauri] application");
 }

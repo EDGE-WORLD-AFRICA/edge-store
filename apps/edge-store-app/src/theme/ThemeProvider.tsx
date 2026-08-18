@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { loadCache, updateCache, IThemeMode, IResolvedTheme } from "../lib/cache";
+import { loadCache, updateCache } from "../lib/cache";
+import type { IThemeMode, IResolvedTheme } from "@edge-store/shared";
 
 interface IThemeContextValue {
   mode: IThemeMode;
