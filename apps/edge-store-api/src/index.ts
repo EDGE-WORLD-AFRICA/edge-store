@@ -1,8 +1,11 @@
 import { createApp } from "./app";
 import { config } from "./config/index";
+import { initializeDatabase } from "./db/setup";
 import { testDatabaseConnection } from "./config/dbconnection";
 
 const startServer = async () => {
+  await initializeDatabase();
+
   const app = createApp();
 
   const dbConnected = await testDatabaseConnection();

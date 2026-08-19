@@ -23,6 +23,9 @@ Backend API for the Edge Store application. Built with Node.js, Express, TypeScr
   cp .env.example .env
 
 4. Create database
+  ```bash 
+  pnpm db:setup
+or 
   ```CREATE DATABASE edge_store CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;```
 
 5. Run migrations
@@ -42,3 +45,7 @@ Backend API for the Edge Store application. Built with Node.js, Express, TypeScr
 6. Start development server
   ```bash
   pnpm dev
+
+7. Build
+  ```bash 
+  pnpm build

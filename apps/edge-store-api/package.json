@@ -4,15 +4,16 @@
   "description": "Edge Store Backend API",
   "main": "dist/index.js",
   "type": "module",
-   "scripts": {
+  "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "migrate": "tsx ./node_modules/knex/bin/cli.js migrate:latest --knexfile src/knexfile.ts",
-    "migrate:rollback": "tsx ./node_modules/knex/bin/cli.js migrate:rollback --knexfile src/knexfile.ts",
-    "migrate:make": "tsx ./node_modules/knex/bin/cli.js migrate:make --knexfile src/knexfile.ts",
-    "seed": "tsx ./node_modules/knex/bin/cli.js seed:run --knexfile src/knexfile.ts",
-    "seed:make": "tsx ./node_modules/knex/bin/cli.js seed:make --knexfile src/knexfile.ts",
+    "db:setup": "tsx src/db/setup.ts",
+    "db:migrate": "tsx ./node_modules/knex/bin/cli.js migrate:latest --knexfile src/knexfile.ts",
+    "db:migrate:rollback": "tsx ./node_modules/knex/bin/cli.js migrate:rollback --knexfile src/knexfile.ts",
+    "db:migrate:generate": "tsx ./node_modules/knex/bin/cli.js migrate:make --knexfile src/knexfile.ts",
+    "db:seed": "tsx ./node_modules/knex/bin/cli.js seed:run --knexfile src/knexfile.ts",
+    "db:seed:generate": "tsx ./node_modules/knex/bin/cli.js seed:make --knexfile src/knexfile.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts"
   },
