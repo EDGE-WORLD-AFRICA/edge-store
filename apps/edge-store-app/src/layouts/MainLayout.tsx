@@ -277,7 +277,7 @@ export const MainLayout = ({ children, currentPage, onNavigate }: IMainLayoutPro
             <span>v{APP_VERSION}</span>
           </div>
           <div className="shrink-0">
-            <ConnectivityIndicator showNetworkSpeed={false} showApiLatency={false} />
+            <ConnectivityIndicator showNetworkSpeed={false} showApiLatency={false} isApiClickable={true} />
           </div>
         </footer>
       </div>
