@@ -53,9 +53,9 @@ export interface ICompanySetupCache {
 }
 
 export interface IDeviceProfileCache {
+  id?: number | string;
   deviceName: string;
-  stationNumber?: string;
-  location?: string;
+  description?: string;
   branchId?: string | number;
   savedAt: string;
 }

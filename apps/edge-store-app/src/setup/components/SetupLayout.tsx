@@ -154,7 +154,7 @@ export const SetupLayout = ({ currentStage, machineCode, children }: ISetupLayou
           </div>
 
            <div className="rounded-md bg-muted/30 p-2 border border-border">
-            <ConnectivityIndicator />
+            <ConnectivityIndicator isApiClickable={true} />
           </div>
         </main>
       </div>

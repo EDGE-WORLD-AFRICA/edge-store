@@ -1,11 +1,7 @@
+import { IEncryptedPayload } from "@edge-store/shared";
+
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
-
-export interface IEncryptedPayload{
-  salt: number[];
-  iv: number[];
-  ciphertext: number[];
-}
 
 
 export const deriveKey = async (password: string, salt: Uint8Array): Promise<CryptoKey> => {

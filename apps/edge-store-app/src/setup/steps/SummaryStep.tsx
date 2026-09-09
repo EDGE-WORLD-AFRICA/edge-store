@@ -1,16 +1,11 @@
 import { useState } from "react";
 import {
-  Server,
-  KeyRound,
-  Building2,
-  MapPin,
-  MonitorSmartphone,
-  ShieldCheck,
-  Loader2,
-  AlertTriangle,
+  Server, KeyRound, Building2, MapPin, MonitorSmartphone, ShieldCheck,
+  Loader2, AlertTriangle, CheckCircle2, WifiOff,
 } from "lucide-react";
 import { loadCache, updateCache } from "../../lib/cache";
-import { submitSetupData } from "../../lib/api";
+import { setupService } from "../../services/setupService";
+import { ApiConfigModal } from "../../components/elements/ApiConfigModal";
 
 interface ISummaryStepProps {
   onComplete: () => void;
@@ -21,39 +16,38 @@ export const SummaryStep = ({ onComplete }: ISummaryStepProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [isApiModalOpen, setIsApiModalOpen] = useState(false);
 
   const handleFinishSetup = async () => {
     setError(null);
     setIsSubmitting(true);
 
-    const result = await submitSetupData(cache);
+    const isReachable = await setupService.checkHealth();
 
-    if (result.success) {
+    if (!isReachable) {
+      setError("API is not reachable. Please configure the server connection.");
+      setIsSubmitting(false);
+      setIsApiModalOpen(true);
+      return;
+    }
+
+    try {
+      const result = await setupService.finalizeSetup();
+
       setSuccess(true);
-
       updateCache((c) => {
         c.setup.setupCompleted = true;
         c.setup.lastBootstrapAt = new Date().toISOString();
       });
 
-      setTimeout(() => {
-        onComplete();
-      }, 2000);
-    } else {
-      setError(result.message || "Failed to save setup data to backend.");
+      setTimeout(() => onComplete(), 2000);
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to save setup data to backend.");
       setIsSubmitting(false);
     }
   };
 
-  const SummaryCard = ({
-    title,
-    icon: Icon,
-    children,
-  }: {
-    title: string;
-    icon: any;
-    children: React.ReactNode;
-  }) => (
+  const SummaryCard = ({ title, icon: Icon, children }: { title: string; icon: any; children: React.ReactNode }) => (
     <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
       <div className="mb-4 flex items-center gap-2 border-b border-border pb-3">
         <Icon size={18} className="text-primary" />
@@ -66,9 +60,7 @@ export const SummaryStep = ({ onComplete }: ISummaryStepProps) => {
   const Item = ({ label, value }: { label: string; value?: string | number }) => (
     <div className="flex justify-between gap-4">
       <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium text-foreground text-right break-all">
-        {value || "—"}
-      </span>
+      <span className="font-medium text-foreground text-right break-all">{value || "—"}</span>
     </div>
   );
 
@@ -79,16 +71,10 @@ export const SummaryStep = ({ onComplete }: ISummaryStepProps) => {
           <ShieldCheck size={72} className="text-success" />
         </div>
         <div className="space-y-2">
-          <h2
-            className="animate-fade-in-up text-2xl font-bold text-foreground"
-            style={{ animationDelay: "0.2s" }}
-          >
+          <h2 className="animate-fade-in-up text-2xl font-bold text-foreground" style={{ animationDelay: "0.2s" }}>
             Setup Saved Successfully
           </h2>
-          <p
-            className="animate-fade-in-up text-sm text-muted-foreground"
-            style={{ animationDelay: "0.4s" }}
-          >
+          <p className="animate-fade-in-up text-sm text-muted-foreground" style={{ animationDelay: "0.4s" }}>
             Configuration synced to backend. Redirecting to login...
           </p>
         </div>
@@ -101,26 +87,33 @@ export const SummaryStep = ({ onComplete }: ISummaryStepProps) => {
       <div>
         <h2 className="text-2xl font-bold text-foreground">Review & Finish</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Please review your configuration. Clicking Finish will save this setup to the Edge Store backend.
+          Review your configuration. Clicking Finish will save this setup to the Edge Store backend.
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-1">
+      <div className="grid gap-4 md:grid-cols-2">
+        <SummaryCard title="Server Configuration" icon={Server}>
+          <Item label="Protocol" value={cache.server?.protocol.toUpperCase()} />
+          <Item label="Host" value={cache.server?.host} />
+          <Item label="Port" value={cache.server?.port} />
+          <Item label="Base Path" value={cache.server?.basePath} />
+        </SummaryCard>
+
+        <SummaryCard title="License Status" icon={KeyRound}>
+          <Item label="Status" value={cache.license?.status.toUpperCase()} />
+          <Item label="Activation Code" value={cache.license?.activationCode} />
+          <Item label="Machine Code" value={`${cache.license?.machineCode?.substring(0, 18)}...`} />
+          <Item label="Access Mode" value={cache.license?.claims?.accessMode || "production"} />
+        </SummaryCard>
+
         <SummaryCard title="Company Details" icon={Building2}>
           {cache.company?.company?.logo && (
             <div className="mb-3 flex justify-center">
-              <img
-                src={cache.company.company.logo}
-                alt="Company Logo"
-                className="h-16 w-16 rounded-md border border-border bg-background object-contain p-1"
-              />
+              <img src={cache.company.company.logo} alt="Company Logo" className="h-16 w-16 rounded-md border border-border bg-background object-contain p-1" />
             </div>
           )}
           <Item label="Company Name" value={cache.company?.company?.name} />
-          <Item
-            label="Business Types"
-            value={cache.company?.company?.businessTypes.join(", ")}
-          />
+          <Item label="Business Types" value={cache.company?.company?.businessTypes.join(", ")} />
           <Item label="TPIN" value={cache.company?.company?.tpin} />
           <Item label="Reg No." value={cache.company?.company?.businessRegNo} />
         </SummaryCard>
@@ -134,18 +127,14 @@ export const SummaryStep = ({ onComplete }: ISummaryStepProps) => {
 
         <SummaryCard title="Device Profile" icon={MonitorSmartphone}>
           <Item label="Device Name" value={cache.device?.deviceName} />
-          <Item label="Station Number" value={cache.device?.stationNumber} />
-          <Item label="Location" value={cache.device?.location} />
+          <Item label="Description" value={cache.device?.description} />
         </SummaryCard>
 
-        <SummaryCard title="License Status" icon={KeyRound}>
-          <Item label="Status" value={cache.license?.status.toUpperCase()} />
-          <Item label="Activation Code" value={cache.license?.activationCode} />
-          <Item
-            label="Machine Code"
-            value={`${cache.license?.machineCode?.substring(0, 18)}...`}
-          />
-          <Item label="Access Mode" value={cache.license?.claims?.accessMode || "production"} />
+        <SummaryCard title="Super Admin" icon={ShieldCheck}>
+          <Item label="Name" value={`${cache.admin?.firstName || ""} ${cache.admin?.otherNames || ""} ${cache.admin?.lastName || ""}`.trim()} />
+          <Item label="Username" value={cache.admin?.username} />
+          <Item label="Email" value={cache.admin?.email} />
+          <Item label="Password" value="••••••••" />
         </SummaryCard>
       </div>
 
@@ -157,15 +146,13 @@ export const SummaryStep = ({ onComplete }: ISummaryStepProps) => {
       )}
 
       <div className="flex justify-end">
-        <button
-          onClick={handleFinishSetup}
-          disabled={isSubmitting}
-          className="flex items-center justify-center rounded-md bg-primary px-8 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-strong disabled:opacity-50"
-        >
+        <button onClick={handleFinishSetup} disabled={isSubmitting} className="flex items-center justify-center rounded-md bg-primary px-8 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-strong disabled:opacity-50">
           {isSubmitting && <Loader2 size={16} className="mr-2 animate-spin" />}
           {isSubmitting ? "Saving to Backend..." : "Finish Setup"}
         </button>
       </div>
+
+      <ApiConfigModal isOpen={isApiModalOpen} onClose={() => setIsApiModalOpen(false)} />
     </div>
   );
 };

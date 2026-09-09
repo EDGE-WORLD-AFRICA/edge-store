@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { db } from "../config/dbconnection";
 import { v4 as uuidv4 } from "uuid";
+import { saveBase64Image } from "../utils/fileStorage";
 
 export interface ISetupPayload {
   meta?: any;
@@ -13,27 +14,28 @@ export interface ISetupPayload {
 
 export const setupService = {
   adminExists: async (): Promise<boolean> => {
-    const result = await db("users")
-      .where("is_super_admin", true)
-      .first();
+    const result = await db("user_accounts").where("is_super_admin", true).first();
     return !!result;
   },
 
   completeSetup: async (payload: ISetupPayload) => {
     const { company, device, admin } = payload;
 
-    // Check if admin already exists
-    const existingAdmin = await db("users")
-      .where("is_super_admin", true)
-      .first();
-
+    const existingAdmin = await db("user_accounts").where("is_super_admin", true).first();
     if (existingAdmin) {
       throw new Error("Super admin already exists. Setup cannot be repeated.");
     }
 
-    // Create company
-    let companyId: string;
+    // Handle logo upload
+    let logoPath: string | null = null;
+    if (company?.company?.logo && company.company.logo.startsWith("data:image")) {
+      const companyId = uuidv4();
+      const ext = company.company.logo.match(/^data:image\/(\w+);/)?.[1] || "png";
+      const fileName = `company-${companyId}.${ext}`;
+      logoPath = saveBase64Image(company.company.logo, fileName);
+    }
 
+    let companyId: string;
     if (company?.company?.id) {
       companyId = company.company.id;
     } else {
@@ -44,15 +46,13 @@ export const setupService = {
         legal_name: company?.company?.name || "Edge Store",
         t_pin: company?.company?.tpin || null,
         business_reg_no: company?.company?.businessRegNo || null,
-        logo: company?.company?.logo || null,
+        logo: logoPath,
         business_types: JSON.stringify(company?.company?.businessTypes || []),
         source: company?.company?.source || "local",
       });
     }
 
-    // Create branch
     let branchId: string | null = null;
-
     if (company?.mainBranch) {
       branchId = uuidv4();
       await db("branches").insert({
@@ -66,9 +66,7 @@ export const setupService = {
       });
     }
 
-    // Create device
     let deviceId: string | null = null;
-
     if (device) {
       deviceId = uuidv4();
       await db("devices").insert({
@@ -76,30 +74,45 @@ export const setupService = {
         company_id: companyId,
         branch_id: branchId,
         device_name: device.deviceName || "Unknown Device",
-        station_number: device.stationNumber || null,
-        location: device.location || null,
+        location: device.description || null,
         machine_code: payload.meta?.machineCode || "unknown",
         status: "active",
       });
     }
 
-    // Create admin user
     let adminId: string | null = null;
+    let personId: string | null = null;
 
     if (admin?.username && admin?.password) {
+      personId = uuidv4();
+      await db("person").insert({
+        id: personId,
+        first_name: admin.firstName || admin.username,
+        other_names: admin.otherNames || null,
+        last_name: admin.lastName || admin.firstName || admin.username,
+      });
+
       const passwordHash = await bcrypt.hash(admin.password, 12);
       adminId = uuidv4();
 
-      await db("users").insert({
+      await db("user_accounts").insert({
         id: adminId,
+        person_id: personId,
         company_id: companyId,
         username: admin.username,
-        email: admin.email || `${admin.username}@edgestore.local`,
-        name: admin.name || admin.username,
         password_hash: passwordHash,
         is_super_admin: true,
         is_active: true,
       });
+
+      const superAdminRole = await db("roles").where("name", "Super Admin").first();
+      if (superAdminRole) {
+        await db("user_roles").insert({
+          id: uuidv4(),
+          user_id: adminId,
+          role_id: superAdminRole.id,
+        });
+      }
     }
 
     return {
@@ -107,6 +120,8 @@ export const setupService = {
       branchId,
       deviceId,
       adminId,
+      personId,
+      logoUrl: logoPath,
       message: "Setup completed successfully",
     };
   },
@@ -115,7 +130,7 @@ export const setupService = {
     const companies = await db("companies").select("*");
 
     const companiesWithBranches = await Promise.all(
-      companies.map(async (company: any) => {
+      companies.map(async (company) => {
         const branches = await db("branches")
           .where("company_id", company.id)
           .select("*");

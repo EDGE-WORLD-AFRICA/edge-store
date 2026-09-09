@@ -4,7 +4,6 @@ import { loadCache } from "../lib/cache";
 import { resolveBootstrapStage } from "../lib/bootstrap";
 import { getMachineFingerprint } from "../lib/fingerprint";
 import { SetupLayout } from "./components/SetupLayout";
-
 import { ServerConfigStep } from "./steps/ServerConfigStep";
 import { LicenseStep } from "./steps/LicenseStep";
 import { CompanySetupStep } from "./steps/CompanySetupStep";
@@ -12,12 +11,19 @@ import { SuperAdminSetupStep } from "./steps/SuperAdminSetupStep";
 import { DeviceSetupStep } from "./steps/DeviceSetupStep";
 import { SummaryStep } from "./steps/SummaryStep";
 import { LoginScreen } from "../auth/LoginScreen";
-
+import { MainLayout } from "../layouts/MainLayout";
+import { DashboardPage } from "../pages/DashboardPage";
+import { InventoryPage } from "../pages/InventoryPage";
+import { SalesPage } from "../pages/SalesPage";
+import { SettingsPage } from "../pages/SettingsPage";
+import { UsersPage } from "../pages/UsersPage";
+import { ProfilePage } from "../pages/ProfilePage";
 
 export const SetupWizard = () => {
   const [currentStage, setCurrentStage] = useState<IBootstrapStage>("SERVER_CONFIG");
   const [machineCode, setMachineCode] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState("dashboard");
 
   useEffect(() => {
     const init = async () => {
@@ -27,42 +33,76 @@ export const SetupWizard = () => {
       const cache = loadCache();
       const stage = resolveBootstrapStage(cache);
       setCurrentStage(stage);
+
+      if (stage === "APP" && cache.auth) {
+        const savedPage = localStorage.getItem("edge-store-current-page");
+        if (savedPage) {
+          setCurrentPage(savedPage);
+        }
+      }
+
       setIsLoading(false);
     };
 
     init();
   }, []);
 
-
   const goToNextStage = () => {
     const cache = loadCache();
     const nextStage = resolveBootstrapStage(cache);
     setCurrentStage(nextStage);
+
+    if (nextStage === "APP") {
+      const savedPage = localStorage.getItem("edge-store-current-page");
+      if (savedPage) {
+        setCurrentPage(savedPage);
+      }
+    }
   };
 
-  if(isLoading){
-    return(
-      <>
-        <div className="flex h-screen w-full items-center justify-center bg-background">
-          <div className="text-muted-foreground">Initializing App ...</div>
-        </div>
-      </>
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <div className="text-muted-foreground">Initializing Edge Store...</div>
+      </div>
     );
   }
 
-  if (["APP", "LOGIN"].includes(currentStage)) {
+  if (currentStage === "APP") {
+    const cache = loadCache();
+
+    if (cache.auth) {
+      const renderPage = () => {
+        switch (currentPage) {
+          case "dashboard": return <DashboardPage />;
+          case "inventory": return <InventoryPage />;
+          case "sales": return <SalesPage />;
+          case "users": return <UsersPage />;
+          case "settings": return <SettingsPage />;
+          case "profile": return <ProfilePage />;
+          default: return <DashboardPage />;
+        }
+      };
+
+      return (
+        <MainLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+          {renderPage()}
+        </MainLayout>
+      );
+    }
+
     return <LoginScreen />;
   }
 
   const renderStep = () => {
-    switch(currentStage) {
+    switch (currentStage) {
       case "SERVER_CONFIG":
         return <ServerConfigStep onComplete={goToNextStage} />;
       case "LICENSE":
-        return <LicenseStep onComplete={goToNextStage} machineCode={machineCode} />;
+        return <LicenseStep machineCode={machineCode} onComplete={goToNextStage} />;
       case "COMPANY_SETUP":
         return <CompanySetupStep onComplete={goToNextStage} />;
-      case "SUPER_ADMIN_SETUP":  
+      case "SUPER_ADMIN_SETUP":
         return <SuperAdminSetupStep onComplete={goToNextStage} />;
       case "DEVICE_SETUP":
         return <DeviceSetupStep onComplete={goToNextStage} />;
@@ -73,9 +113,9 @@ export const SetupWizard = () => {
     }
   };
 
-  return(<>
+  return (
     <SetupLayout currentStage={currentStage} machineCode={machineCode}>
       {renderStep()}
     </SetupLayout>
-  </>);
+  );
 };

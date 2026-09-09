@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, Save, PlugZap, CheckCircle2 } from "lucide-react";
 import type { IServerProtocol } from "@edge-store/shared";
 import { Modal } from "../ui/Modal";
@@ -23,6 +23,14 @@ export const ApiConfigModal = ({ isOpen, onClose }: IApiConfigModalProps) => {
   const [isSaving, setIsSaving] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+
+   useEffect(() => {
+    if (isOpen) {
+      setIsClosing(false);
+      setIsTesting(false);
+      setIsSaving(false);
+    }
+  }, [isOpen]);
 
   const handleSave = async () => {
     if (!host.trim()) {
@@ -80,6 +88,7 @@ export const ApiConfigModal = ({ isOpen, onClose }: IApiConfigModalProps) => {
         setIsClosing(true);
         setIsTesting(false);
         setTimeout(() => {
+          setIsClosing(false);
           onClose();
         }, 2000);
       } else {

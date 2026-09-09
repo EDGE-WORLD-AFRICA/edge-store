@@ -2,6 +2,9 @@ import { IUiState } from "./theme";
 import { IServerConfigCache, IServerConnectivityState } from "./server";
 import { ILicenseCache } from "./license";
 import { ICompanySetupCache, IDeviceProfileCache } from "./company";
+import { IEncryptedPayload } from "./crypto";
+import { IPersonDetails } from "./person";
+import { IUserRoleDetails } from "./user";
 
 export interface IMetaCache {
   version: string | number;
@@ -23,30 +26,25 @@ export interface ISetupCache {
 export type IAuthMode = "online" | "offline";
 
 export interface IAuthSessionCache {
-  userId: string | number; 
-  name: string; 
-  email: string; 
-  companyId?: string | number;
+  userId: string | number;
+  username: string;
+  person: IPersonDetails;
+  companyId: string | number;
   branchId?: string | number;
   mode: IAuthMode;
-  accessToken?: string;
+  accessToken: string;
   refreshToken?: string;
+  permissions: string[];
+  roles: IUserRoleDetails[];
   loggedInAt: string;
   expiresAt?: string;
 }
 
 export interface IOfflineAuthCache {
-  userId: string | number;
-  name: string;
-  email: string;
-  companyId?: string | number;
-  branchIds?: (string | number)[];
-  permissions: any[];
-  passwordVerifier: string;
+  username: string;
+  encryptedPayload: IEncryptedPayload;
   cachedAt: string;
   expiresAt: string;
-  version: number;
-  signature?: string;
 }
 
 export interface IPermissionCache {
@@ -68,10 +66,12 @@ export interface IMetadataSyncCache {
 }
 
 export interface IAdminSetupCache {
-  name: string;
+  firstName: string;
+  otherNames?: string;
+  lastName: string;
   email: string;
-  username?: string;
-  password?: string;
+  username: string;
+  password: string;
 }
 
 export interface IEdgeStoreCache {

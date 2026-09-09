@@ -14,34 +14,42 @@ export interface ILoginPayload {
 
 export const authService = {
   login: async (payload: ILoginPayload) => {
-    const { username, password, deviceId, deviceName, machineCode } = payload;
+    const { username, password, machineCode } = payload;
 
-    const user = await db("users")
-      .where("username", username)
-      .where("is_active", true)
+    const userAccount = await db("user_accounts")
+      .join("person", "user_accounts.person_id", "person.id")
+      .where("user_accounts.username", username)
+      .where("user_accounts.is_active", true)
+      .where("user_accounts.voided", false)
+      .where("person.voided", false)
+      .select(
+        "user_accounts.*",
+        "person.first_name",
+        "person.other_names",
+        "person.last_name",
+        "person.date_of_birth",
+        "person.gender"
+      )
       .first();
 
-    if (!user) {
+    if (!userAccount) {
       throw new Error("Invalid username or password");
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-
+    const isPasswordValid = await bcrypt.compare(password, userAccount.password_hash);
     if (!isPasswordValid) {
       throw new Error("Invalid username or password");
     }
 
-    const company = await db("companies")
-      .where("id", user.company_id)
-      .first();
+    const company = await db("companies").where("id", userAccount.company_id).first();
 
     const userRoles = await db("user_roles")
-      .where("user_id", user.id)
       .join("roles", "user_roles.role_id", "roles.id")
+      .where("user_roles.user_id", userAccount.id)
+      .where("user_roles.voided", false)
       .select("roles.*", "user_roles.branch_id");
 
     const roleIds = userRoles.map((r: any) => r.id);
-
     let permissions: string[] = [];
 
     if (roleIds.length > 0) {
@@ -53,36 +61,33 @@ export const authService = {
       permissions = [...new Set(rolePermissions.map((p: any) => p.key))];
     }
 
-    if (user.is_super_admin) {
+    if (userAccount.is_super_admin) {
       permissions = ["*"];
     }
 
     let device = null;
+    let branch = null;
 
     if (machineCode) {
-      device = await db("devices")
-        .where("machine_code", machineCode)
-        .first();
-
+      device = await db("devices").where("machine_code", machineCode).first();
       if (device) {
-        await db("devices")
-          .where("id", device.id)
-          .update({ last_seen_at: new Date() });
+        await db("devices").where("id", device.id).update({ last_seen_at: new Date() });
+        if (device.branch_id) {
+          branch = await db("branches").where("id", device.branch_id).first();
+        }
       }
     }
 
-    // FIX: Cast expiresIn to 'any' to bypass the strict StringValue branded type 
-    // required by newer versions of @types/jsonwebtoken.
     const signOptions: jwt.SignOptions = {
       expiresIn: config.jwt.expiresIn as any,
     };
 
     const accessToken = jwt.sign(
       {
-        userId: user.id,
-        username: user.username,
-        companyId: user.company_id,
-        isSuperAdmin: user.is_super_admin,
+        userId: userAccount.id,
+        username: userAccount.username,
+        companyId: userAccount.company_id,
+        isSuperAdmin: userAccount.is_super_admin,
       },
       config.jwt.secret,
       signOptions
@@ -93,43 +98,34 @@ export const authService = {
 
     await db("sessions").insert({
       id: uuidv4(),
-      user_id: user.id,
+      user_id: userAccount.id,
       device_id: device?.id || null,
       refresh_token_hash: refreshTokenHash,
       expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
-    await db("users")
-      .where("id", user.id)
-      .update({ last_login_at: new Date() });
+    await db("user_accounts").where("id", userAccount.id).update({ last_login_at: new Date() });
 
     return {
       user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        name: user.name,
-        isSuperAdmin: user.is_super_admin,
-        companyId: user.company_id,
+        id: userAccount.id,
+        username: userAccount.username,
+        isSuperAdmin: userAccount.is_super_admin,
+        companyId: userAccount.company_id,
+        person: {
+          id: userAccount.person_id,
+          firstName: userAccount.first_name,
+          otherNames: userAccount.other_names,
+          lastName: userAccount.last_name,
+          dateOfBirth: userAccount.date_of_birth,
+          gender: userAccount.gender,
+        },
       },
-      company: {
-        id: company?.id,
-        name: company?.name,
-        logo: company?.logo,
-      },
-      device: device
-        ? {
-            id: device.id,
-            name: device.device_name,
-            branchId: device.branch_id,
-          }
-        : null,
+      company: company ? { id: company.id, name: company.name, logo: company.logo } : null,
+      branch: branch ? { id: branch.id, name: branch.name, code: branch.code } : null,
+      device: device ? { id: device.id, name: device.device_name, branchId: device.branch_id } : null,
       permissions,
-      roles: userRoles.map((r: any) => ({
-        id: r.id,
-        name: r.name,
-        branchId: r.branch_id,
-      })),
+      roles: userRoles.map((r: any) => ({ id: r.id, name: r.name, branchId: r.branch_id })),
       tokens: {
         accessToken,
         refreshToken,
@@ -140,8 +136,7 @@ export const authService = {
 
   verifyToken: async (token: string) => {
     try {
-      const decoded = jwt.verify(token, config.jwt.secret);
-      return decoded;
+      return jwt.verify(token, config.jwt.secret);
     } catch {
       return null;
     }

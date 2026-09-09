@@ -4,7 +4,7 @@ Backend API for the Edge Store application. Built with Node.js, Express, TypeScr
 
 ## Prerequisites
 
-- Node.js v18+
+- Node.js v22.13+
 - pnpm
 - MySQL 8.0+
 
@@ -25,8 +25,11 @@ Backend API for the Edge Store application. Built with Node.js, Express, TypeScr
 4. Create database
   ```bash 
   pnpm db:setup
-or 
-  ```CREATE DATABASE edge_store CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;```
+  pnpm db:migrate
+  pnpm db:seed
+
+  NOTE: If NODE_ENV is set to production, seeds won't run automatically. Force them with: ```RUN_SEEDS=true pnpm db:setup```
+
 
 5. Run migrations
   ```bash
