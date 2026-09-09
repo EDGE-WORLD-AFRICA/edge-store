@@ -28,6 +28,7 @@ export const authController = {
     }
   },
 
+
   verify: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authHeader = req.headers.authorization;
@@ -44,6 +45,23 @@ export const authController = {
       }
 
       sendSuccess(res, { valid: true, user: decoded });
+    } catch (error: any) {
+      next(error);
+    }
+  },
+
+  
+  refresh: async (req: Request, res: Response, next: NextFunction) => {
+    try{
+      const { refreshToken, userId } = req.body;
+
+      if(!refreshToken || !userId) return sendError(res, "Refresh token and user ID are required", 400);
+
+      const result = await authService.refreshToken({refreshToken, userId});
+
+      if(!result) return sendError(res, "Invalid or expired refresh token", 401);
+
+      sendSuccess(res, result, "Token refreshed successfully");
     } catch (error: any) {
       next(error);
     }

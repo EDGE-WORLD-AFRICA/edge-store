@@ -141,4 +141,55 @@ export const authService = {
       return null;
     }
   },
+
+
+  refreshToken: async (payload: { refreshToken: string; userId: string | number }) => {
+    const { refreshToken, userId } = payload;
+
+    const session = await db("sessions")
+    .where("user_id", userId)
+    .where("voided", false)
+    .orderBy("created_at", "desc")
+    .first();
+
+    if(!session) return null; 
+
+    if(new Date(session.expires_at) < new Date()){
+      await db("sessions").where("id", session.id).update({ voided: true });
+      return null;
+    }
+
+    const user = await db("user_accounts")
+    .where("id", userId)
+    .where("is_active", true)
+    .where("voided", false)
+    .first();
+
+    if(!user) return null;
+
+    const signOptions: jwt.SignOptions = { expiresIn: config.jwt.expiresIn as any };
+
+    const newAccessToken = jwt.sign({
+        userId: user.id,
+        username: user.username,
+        companyId: user.company_id,
+        isSuperAdmin: user.is_super_admin,
+      }, config.jwt.secret, signOptions);
+
+    const newRefreshToken = uuidv4();
+    const newRefreshTokenHash = await bcrypt.hash(newRefreshToken, 10);
+
+    await db("sessions").where("id", session.id).update({
+      refresh_token_hash: newRefreshTokenHash,
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+
+    return {
+      tokens: {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+        expiresIn: config.jwt.expiresIn,
+      },
+    };
+  }
 };
