@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "identifier": "com.edge-store.app",
   "build": {
-    "beforeDevCommand": "pnpm dev",
+    "beforeDevCommand": "pnpm --filter edge-store-app run frontend:dev",
+    "beforeBuildCommand": "pnpm --filter edge-store-app run build",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "pnpm build",
     "frontendDist": "../dist"
   },
   "app": {

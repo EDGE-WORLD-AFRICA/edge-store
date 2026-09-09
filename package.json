@@ -1,14 +1,20 @@
 {
   "name": "edge-store",
   "version": "1.0.0",
-  "description": "",
+  "description": "Retail store management system",
   "main": "index.js",
+  "type": "module",
+  "private": true,
+  "license": "ISC",
   "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Emmanuel Z.K. Nyondo, Golden Khonje",
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
@@ -16,8 +22,6 @@
       "onFail": "download"
     }
   },
-  "type": "module",
-  "private": "true",
   "devDependencies": {
     "@types/node": "^26.1.2",
     "prettier": "^3.9.6",

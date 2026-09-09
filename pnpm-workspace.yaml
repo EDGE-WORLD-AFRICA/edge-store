@@ -1,6 +1,8 @@
 packages:
   - "apps/*"
   - "packages/*"
+  - "edge-store-api"
+  - "edge-store-app"
 allowBuilds:
   bcrypt: true
   esbuild: true
