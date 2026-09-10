@@ -1,20 +1,27 @@
 import type { Knex } from "knex";
+import { createTableIfNotExist, dropTableIfExists } from "../helpers/migrationHelper";
 
 export const up = async (knex: Knex): Promise<void> => {
-  await knex.schema.dropTableIfExists("sessions");
-  await knex.schema.dropTableIfExists("user_roles");
-  await knex.schema.dropTableIfExists("users");
+  // Safely drop legacy tables if they exist
+  await dropTableIfExists(knex, "sessions");
+  await dropTableIfExists(knex, "user_roles");
+  await dropTableIfExists(knex, "users");
 
+  // Safely add 'voided' column to existing core tables if missing
   const existingTables = ["companies", "branches", "devices", "roles", "permissions", "role_permissions"];
   for (const table of existingTables) {
     if (await knex.schema.hasTable(table)) {
-      await knex.schema.alterTable(table, (t) => {
-        t.boolean("voided").defaultTo(false);
-      });
+      const hasVoided = await knex.schema.hasColumn(table, "voided");
+      if (!hasVoided) {
+        await knex.schema.alterTable(table, (t) => {
+          t.boolean("voided").defaultTo(false);
+        });
+      }
     }
   }
 
-  await knex.schema.createTable("person", (table) => {
+  // Create new tables idempotently
+  await createTableIfNotExist(knex, "person", (table) => {
     table.uuid("id").primary().defaultTo(knex.raw("(UUID())"));
     table.string("first_name", 100).notNullable();
     table.string("other_names", 100).nullable();
@@ -26,7 +33,7 @@ export const up = async (knex: Knex): Promise<void> => {
     table.timestamp("updated_at").defaultTo(knex.fn.now());
   });
 
-  await knex.schema.createTable("contact_types", (table) => {
+  await createTableIfNotExist(knex, "contact_types", (table) => {
     table.uuid("id").primary().defaultTo(knex.raw("(UUID())"));
     table.string("name", 100).notNullable().unique();
     table.boolean("voided").defaultTo(false);
@@ -34,7 +41,7 @@ export const up = async (knex: Knex): Promise<void> => {
     table.timestamp("updated_at").defaultTo(knex.fn.now());
   });
 
-  await knex.schema.createTable("person_contacts", (table) => {
+  await createTableIfNotExist(knex, "person_contacts", (table) => {
     table.uuid("id").primary().defaultTo(knex.raw("(UUID())"));
     table.uuid("person_id").notNullable();
     table.uuid("contact_type_id").notNullable();
@@ -48,7 +55,7 @@ export const up = async (knex: Knex): Promise<void> => {
     table.foreign("contact_type_id").references("contact_types.id").onDelete("CASCADE");
   });
 
-  await knex.schema.createTable("user_accounts", (table) => {
+  await createTableIfNotExist(knex, "user_accounts", (table) => {
     table.uuid("id").primary().defaultTo(knex.raw("(UUID())"));
     table.uuid("person_id").notNullable();
     table.uuid("company_id").notNullable();
@@ -68,7 +75,7 @@ export const up = async (knex: Knex): Promise<void> => {
     table.unique(["company_id", "username"]);
   });
 
-  await knex.schema.createTable("user_roles", (table) => {
+  await createTableIfNotExist(knex, "user_roles", (table) => {
     table.uuid("id").primary().defaultTo(knex.raw("(UUID())"));
     table.uuid("user_id").notNullable();
     table.uuid("role_id").notNullable();
@@ -83,7 +90,7 @@ export const up = async (knex: Knex): Promise<void> => {
     table.unique(["user_id", "role_id", "branch_id"]);
   });
 
-  await knex.schema.createTable("sessions", (table) => {
+  await createTableIfNotExist(knex, "sessions", (table) => {
     table.uuid("id").primary().defaultTo(knex.raw("(UUID())"));
     table.uuid("user_id").notNullable();
     table.uuid("device_id").nullable();
@@ -100,10 +107,10 @@ export const up = async (knex: Knex): Promise<void> => {
 };
 
 export const down = async (knex: Knex): Promise<void> => {
-  await knex.schema.dropTableIfExists("sessions");
-  await knex.schema.dropTableIfExists("user_roles");
-  await knex.schema.dropTableIfExists("user_accounts");
-  await knex.schema.dropTableIfExists("person_contacts");
-  await knex.schema.dropTableIfExists("contact_types");
-  await knex.schema.dropTableIfExists("person");
+  await dropTableIfExists(knex, "sessions");
+  await dropTableIfExists(knex, "user_roles");
+  await dropTableIfExists(knex, "user_accounts");
+  await dropTableIfExists(knex, "person_contacts");
+  await dropTableIfExists(knex, "contact_types");
+  await dropTableIfExists(knex, "person");
 };

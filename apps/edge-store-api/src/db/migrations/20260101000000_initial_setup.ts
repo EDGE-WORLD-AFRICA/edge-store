@@ -1,9 +1,10 @@
 import type { Knex } from "knex";
+import { createTableIfNotExist, dropTableIfExists } from "../helpers/migrationHelper";
 
 export const up = async (knex: Knex): Promise<void> => {
   // Companies table
-  await knex.schema.createTable("companies", (table) => {
-    table.uuid("id").primary().defaultTo(knex.raw("(UUID())"));
+  await createTableIfNotExist(knex, "companies", (table) => {
+    table.uuid("id").defaultTo(knex.raw("(UUID())")).primary();
     table.string("name", 255).notNullable();
     table.string("legal_name", 255).nullable();
     table.string("t_pin", 100).nullable();
@@ -20,8 +21,8 @@ export const up = async (knex: Knex): Promise<void> => {
   });
 
   // Branches table
-  await knex.schema.createTable("branches", (table) => {
-    table.uuid("id").primary().defaultTo(knex.raw("(UUID())"));
+  await createTableIfNotExist(knex, "branches", (table) => {
+    table.uuid("id").defaultTo(knex.raw("(UUID())")).primary();
     table.uuid("company_id").notNullable();
     table.string("code", 50).notNullable();
     table.string("name", 255).notNullable();
@@ -36,8 +37,8 @@ export const up = async (knex: Knex): Promise<void> => {
   });
 
   // Devices table
-  await knex.schema.createTable("devices", (table) => {
-    table.uuid("id").primary().defaultTo(knex.raw("(UUID())"));
+  await createTableIfNotExist(knex, "devices", (table) => {
+    table.uuid("id").defaultTo(knex.raw("(UUID())")).primary();
     table.uuid("company_id").notNullable();
     table.uuid("branch_id").nullable();
     table.string("device_name", 255).notNullable();
@@ -55,8 +56,8 @@ export const up = async (knex: Knex): Promise<void> => {
   });
 
   // Users table
-  await knex.schema.createTable("users", (table) => {
-    table.uuid("id").primary().defaultTo(knex.raw("(UUID())"));
+  await createTableIfNotExist(knex, "users", (table) => {
+    table.uuid("id").defaultTo(knex.raw("(UUID())")).primary();
     table.uuid("company_id").notNullable();
     table.string("username", 100).notNullable();
     table.string("email", 255).notNullable();
@@ -74,8 +75,8 @@ export const up = async (knex: Knex): Promise<void> => {
   });
 
   // Roles table
-  await knex.schema.createTable("roles", (table) => {
-    table.uuid("id").primary().defaultTo(knex.raw("(UUID())"));
+  await createTableIfNotExist(knex, "roles", (table) => {
+    table.uuid("id").defaultTo(knex.raw("(UUID())")).primary();
     table.uuid("company_id").nullable();
     table.string("name", 100).notNullable();
     table.string("description", 255).nullable();
@@ -87,8 +88,8 @@ export const up = async (knex: Knex): Promise<void> => {
   });
 
   // Permissions table
-  await knex.schema.createTable("permissions", (table) => {
-    table.uuid("id").primary().defaultTo(knex.raw("(UUID())"));
+  await createTableIfNotExist(knex, "permissions", (table) => {
+    table.uuid("id").defaultTo(knex.raw("(UUID())")).primary();
     table.string("key", 100).notNullable().unique();
     table.string("name", 255).notNullable();
     table.string("module", 100).notNullable();
@@ -97,7 +98,7 @@ export const up = async (knex: Knex): Promise<void> => {
   });
 
   // Role-Permission mapping
-  await knex.schema.createTable("role_permissions", (table) => {
+  await createTableIfNotExist(knex, "role_permissions", (table) => {
     table.uuid("role_id").notNullable();
     table.uuid("permission_id").notNullable();
     table.primary(["role_id", "permission_id"]);
@@ -107,8 +108,8 @@ export const up = async (knex: Knex): Promise<void> => {
   });
 
   // User-Role mapping (with branch scope)
-  await knex.schema.createTable("user_roles", (table) => {
-    table.uuid("id").primary().defaultTo(knex.raw("(UUID())"));
+  await createTableIfNotExist(knex, "user_roles", (table) => {
+    table.uuid("id").defaultTo(knex.raw("(UUID())")).primary();
     table.uuid("user_id").notNullable();
     table.uuid("role_id").notNullable();
     table.uuid("branch_id").nullable();
@@ -121,8 +122,8 @@ export const up = async (knex: Knex): Promise<void> => {
   });
 
   // Sessions table for token management
-  await knex.schema.createTable("sessions", (table) => {
-    table.uuid("id").primary().defaultTo(knex.raw("(UUID())"));
+  await createTableIfNotExist(knex, "sessions", (table) => {
+    table.uuid("id").defaultTo(knex.raw("(UUID())")).primary();
     table.uuid("user_id").notNullable();
     table.uuid("device_id").nullable();
     table.string("refresh_token_hash", 255).notNullable();
@@ -138,13 +139,13 @@ export const up = async (knex: Knex): Promise<void> => {
 };
 
 export const down = async (knex: Knex): Promise<void> => {
-  await knex.schema.dropTableIfExists("sessions");
-  await knex.schema.dropTableIfExists("user_roles");
-  await knex.schema.dropTableIfExists("role_permissions");
-  await knex.schema.dropTableIfExists("permissions");
-  await knex.schema.dropTableIfExists("roles");
-  await knex.schema.dropTableIfExists("users");
-  await knex.schema.dropTableIfExists("devices");
-  await knex.schema.dropTableIfExists("branches");
-  await knex.schema.dropTableIfExists("companies");
+  await dropTableIfExists(knex, "sessions");
+  await dropTableIfExists(knex, "user_roles");
+  await dropTableIfExists(knex, "role_permissions");
+  await dropTableIfExists(knex, "permissions");
+  await dropTableIfExists(knex, "roles");
+  await dropTableIfExists(knex, "users");
+  await dropTableIfExists(knex, "devices");
+  await dropTableIfExists(knex, "branches");
+  await dropTableIfExists(knex, "companies");
 };
