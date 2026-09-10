@@ -3,6 +3,7 @@ import type { IBootstrapStage } from "@edge-store/shared";
 import { loadCache } from "../lib/cache";
 import { resolveBootstrapStage } from "../lib/bootstrap";
 import { getMachineFingerprint } from "../lib/fingerprint";
+import { useHashRoute } from "../lib/useHashRoute";
 import { SetupLayout } from "./components/SetupLayout";
 import { ServerConfigStep } from "./steps/ServerConfigStep";
 import { LicenseStep } from "./steps/LicenseStep";
@@ -15,35 +16,26 @@ import { MainLayout } from "../layouts/MainLayout";
 import { DashboardPage } from "../pages/DashboardPage";
 import { InventoryPage } from "../pages/InventoryPage";
 import { SalesPage } from "../pages/SalesPage";
-import { SettingsPage } from "../pages/SettingsPage";
 import { UsersPage } from "../pages/UsersPage";
 import { ProfilePage } from "../pages/ProfilePage";
+import { ConfigurationsPage } from "../pages/ConfigurationsPage";
+import { MetadataConfigurationsPage } from "../pages/MetadataConfigurationsPage";
 
 export const SetupWizard = () => {
   const [currentStage, setCurrentStage] = useState<IBootstrapStage>("SERVER_CONFIG");
   const [machineCode, setMachineCode] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState("dashboard");
+  const { route, navigate } = useHashRoute();
 
   useEffect(() => {
     const init = async () => {
       const code = await getMachineFingerprint();
       setMachineCode(code);
-
       const cache = loadCache();
       const stage = resolveBootstrapStage(cache);
       setCurrentStage(stage);
-
-      if (stage === "APP" && cache.auth) {
-        const savedPage = localStorage.getItem("edge-store-current-page");
-        if (savedPage) {
-          setCurrentPage(savedPage);
-        }
-      }
-
       setIsLoading(false);
     };
-
     init();
   }, []);
 
@@ -51,13 +43,6 @@ export const SetupWizard = () => {
     const cache = loadCache();
     const nextStage = resolveBootstrapStage(cache);
     setCurrentStage(nextStage);
-
-    if (nextStage === "APP") {
-      const savedPage = localStorage.getItem("edge-store-current-page");
-      if (savedPage) {
-        setCurrentPage(savedPage);
-      }
-    }
   };
 
   if (isLoading) {
@@ -73,19 +58,28 @@ export const SetupWizard = () => {
 
     if (cache.auth) {
       const renderPage = () => {
-        switch (currentPage) {
-          case "dashboard": return <DashboardPage />;
+        // Configurations section (cards + nested sub-pages)
+        if (route === "configurations" || route.startsWith("configurations.")) {
+          if (route === "configurations.metadata" || route.startsWith("configurations.metadata.")) {
+            return <MetadataConfigurationsPage route={route} onNavigate={navigate} />;
+          }
+          return <ConfigurationsPage onNavigate={navigate} />;
+        }
+
+        // Top-level pages
+        switch (route) {
           case "inventory": return <InventoryPage />;
           case "sales": return <SalesPage />;
           case "users": return <UsersPage />;
-          case "settings": return <SettingsPage />;
           case "profile": return <ProfilePage />;
-          default: return <DashboardPage />;
+          case "dashboard":
+          default:
+            return <DashboardPage />;
         }
       };
 
       return (
-        <MainLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+        <MainLayout currentPage={route} onNavigate={navigate}>
           {renderPage()}
         </MainLayout>
       );

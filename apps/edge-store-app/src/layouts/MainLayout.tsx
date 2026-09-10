@@ -17,6 +17,8 @@ import {
   ChevronDown,
   ChevronsLeft,
   ChevronsRight,
+  SlidersHorizontal,
+  ArrowLeft,
 } from "lucide-react";
 import { loadCache, clearCacheSection } from "../lib/cache";
 import { useTheme } from "../theme/ThemeProvider";
@@ -35,8 +37,16 @@ const navItems = [
   { id: "inventory", label: "Inventory", icon: Package },
   { id: "sales", label: "Sales", icon: ShoppingCart },
   { id: "users", label: "Users", icon: Users },
-  { id: "settings", label: "Settings", icon: Settings },
+  { id: "configurations", label: "Configurations", icon: SlidersHorizontal },
 ];
+
+const subPageTitles: Record<string, string> = {
+  "configurations.metadata": "Metadata Configurations",
+  "configurations.application": "Application Configurations",
+  "configurations.network": "Network Configurations",
+  "configurations.printer": "Printer Configurations",
+  "profile": "Profile",
+};
 
 export const MainLayout = ({ children, currentPage, onNavigate }: IMainLayoutProps) => {
   const { resolved, setMode } = useTheme();
@@ -54,6 +64,28 @@ export const MainLayout = ({ children, currentPage, onNavigate }: IMainLayoutPro
   const fullName = person
     ? `${person.firstName} ${person.otherNames ? person.otherNames + " " : ""}${person.lastName}`
     : cache.auth?.username || "User";
+
+  // Determine back navigation
+  const isSubPage = currentPage.includes(".");
+  const parentPage = isSubPage
+    ? currentPage.split(".").slice(0, -1).join(".")
+    : currentPage === "profile"
+    ? "dashboard"
+    : null;
+
+  const getPageTitle = () => {
+    const navItem = navItems.find((i) => i.id === currentPage);
+    if (navItem) return navItem.label;
+
+    // Nested configuration sub-pages
+    if (currentPage === "configurations" || currentPage.startsWith("configurations.")) {
+      return "Configurations";
+    }
+
+    if (currentPage === "profile") return "Profile";
+
+    return "Dashboard";
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -83,6 +115,12 @@ export const MainLayout = ({ children, currentPage, onNavigate }: IMainLayoutPro
     localStorage.setItem("edge-store-current-page", page);
   };
 
+  const handleBack = () => {
+    if (parentPage) {
+      handleNavigate(parentPage);
+    }
+  };
+
   const SidebarContent = ({ minified }: { minified: boolean }) => (
     <div className="flex h-full flex-col">
       {/* Company Section */}
@@ -106,7 +144,7 @@ export const MainLayout = ({ children, currentPage, onNavigate }: IMainLayoutPro
       {/* Navigation */}
       <nav className="flex-1 space-y-1">
         {navItems.map((item) => {
-          const isActive = currentPage === item.id;
+          const isActive = currentPage === item.id || currentPage.startsWith(item.id + ".");
           return (
             <button
               key={item.id}
@@ -201,16 +239,29 @@ export const MainLayout = ({ children, currentPage, onNavigate }: IMainLayoutPro
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Navbar */}
         <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {/* Mobile menu button */}
             <button
               onClick={() => setIsSidebarOpen(true)}
               className="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground lg:hidden"
             >
               <Menu size={20} />
             </button>
+
+            {/* Back Button */}
+            {parentPage && (
+              <button
+                onClick={handleBack}
+                className="flex items-center gap-1 rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                title="Go back"
+              >
+                <ArrowLeft size={18} />
+              </button>
+            )}
+
+            {/* Page Title */}
             <h1 className="text-lg font-semibold text-foreground">
-              {navItems.find((i) => i.id === currentPage)?.label ||
-                (currentPage === "profile" ? "Profile" : "Dashboard")}
+              {getPageTitle()}
             </h1>
           </div>
 
@@ -269,7 +320,7 @@ export const MainLayout = ({ children, currentPage, onNavigate }: IMainLayoutPro
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
 
-        {/* Footer - only spans main content area */}
+        {/* Footer */}
         <footer className="flex h-8 shrink-0 items-center justify-between border-t border-border bg-card px-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-2 truncate">
             <span className="truncate font-medium text-foreground">{fullName}</span>
