@@ -20,6 +20,7 @@ import { UsersPage } from "../pages/UsersPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { ConfigurationsPage } from "../pages/ConfigurationsPage";
 import { MetadataConfigurationsPage } from "../pages/MetadataConfigurationsPage";
+import { NetworkConfigurationsPage } from "../pages/NetworkConfigurationsPage";
 
 export const SetupWizard = () => {
   const [currentStage, setCurrentStage] = useState<IBootstrapStage>("SERVER_CONFIG");
@@ -56,13 +57,22 @@ export const SetupWizard = () => {
   if (currentStage === "APP") {
     const cache = loadCache();
 
-    if (cache.auth) {
+        if (cache.auth) {
       const renderPage = () => {
         // Configurations section (cards + nested sub-pages)
         if (route === "configurations" || route.startsWith("configurations.")) {
+          
+          // 1. Metadata Sub-pages
           if (route === "configurations.metadata" || route.startsWith("configurations.metadata.")) {
             return <MetadataConfigurationsPage route={route} onNavigate={navigate} />;
           }
+          
+          // 2. Network Sub-page (ADD THIS)
+          if (route === "configurations.network") {
+            return <NetworkConfigurationsPage />;
+          }
+
+          // 3. Fallback to main Configurations cards page
           return <ConfigurationsPage onNavigate={navigate} />;
         }
 
