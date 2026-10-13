@@ -35,3 +35,7 @@ Before you begin, ensure you have the following installed:
       pnpm install
       pnpm tauri dev (to run with tauri application window )
       pnpm dev (to run only browser version  but Tauri-specific features (like device fingerprinting) will not work.)
+
+
+### Android Build
+- ```pnpm tauri android dev``` or ```build```

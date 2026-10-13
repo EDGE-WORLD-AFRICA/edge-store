@@ -6,6 +6,7 @@ export * from "./types/license";
 export * from "./types/company";
 export * from "./types/toast";
 export * from "./types/crypto";
-
 export * from "./types/person";
 export * from "./types/user";
+export * from './types/metadata';
+export * from './types/inventory';

@@ -33,17 +33,17 @@ Backend API for the Edge Store application. Built with Node.js, Express, TypeScr
 
 5. Run migrations
   ```bash
-  pnpm migrate
+  pnpm db:migrate
 
   Database Migrations
   # Run migrations
-  pnpm migrate
+  pnpm db:migrate
 
   # Rollback last migration
-  pnpm migrate:rollback
+  pnpm db:migrate:rollback
 
   # Create new migration
-  pnpm migrate:make migration_name
+  pnpm db:migrate:generate migration_name
 
 6. Start development server
   ```bash
